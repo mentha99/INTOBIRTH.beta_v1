@@ -5,14 +5,20 @@ function setupPanorama() {
 
     // Hide the video element and set it to paused initially
     video2.style.display = "none";
+    video2.currentTime = videoStartFrame / fps;
     video2.pause();
-    video2.currentTime = 0; // Start from the beginning
+    // Start from the beginning
 
     // Show a loading screen while the video is preloading
     const loadingScreen = document.getElementById('loading-screen');
     loadingScreen.style.display = "flex";
 
+    // Preload the audio
+    //preloadAudioFiles(allAudioElements);
+
     // Preload the video
+    video2.load(); // Start loading
+
     video2.addEventListener('canplaythrough', () => {
         console.log("Video is ready.");
         // Once the video is ready, fade out the loading screen
@@ -29,7 +35,7 @@ function setupPanorama() {
         InteractiveControl(); // Attach your key controls
     });
 
-    video2.load(); // Start loading
+
 }
 
 

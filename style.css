@@ -74,26 +74,33 @@ canvas {
 }
 
 .flex-container {
-    z-index: 1000;
+    z-index: 500;
     position: fixed;
     width: 85vw;
     height: 20vh;
-    bottom: -5px;
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Offset the left by 50% of the container width to center it */
+    bottom: 50px;
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Offset the left by 50% of the container width to center it */
     padding: 0;
     margin: 0;
     display: flex;
-    justify-content: center; /* Center content horizontally within the container */
-    align-items: center; /* Center content vertically within the container */
+    justify-content: center;
+    /* Center content horizontally within the container */
+    align-items: flex-end;
+    /* Align items to the bottom of the container */
+    text-align: center;
+    /* Center align text */
 }
+
 
 .button-container {
     position: fixed;
     /* Fixed positioning ensures it stays in place even if the scene scrolls */
     top: 8px;
     left: 8px;
-    z-index: 1000;
+    z-index: 2000;
     /* High z-index to appear above all other elements */
     cursor: pointer;
     /* Change cursor to pointer */
@@ -106,11 +113,14 @@ canvas {
 
 
 .text-container {
-    position: absolute; /* Use absolute positioning */
+    align-items: flex-end;
+    position: absolute;
+    /* Use absolute positioning */
     width: 100%;
-    height: 10vw;
+    height: 5vw;
     margin: 10px;
-    bottom: 40%; /* Aligns the bottom of the container 30% from the bottom of the screen */
+    bottom: 20%;
+    /* Aligns the bottom of the container 30% from the bottom of the screen */
 }
 
 .text-container h1 {
@@ -118,7 +128,9 @@ canvas {
     font-family: 'Roboto Mono', monospace;
     font-size: 18px;
     text-align: center;
-    margin: 0; /* Remove margin to prevent spacing issues */
+    margin: 0;
+    /* Remove margin to prevent spacing issues */
+    padding-bottom: 20px;
 }
 
 .nav {
@@ -313,17 +325,98 @@ body {
 .bottom-area {
     position: fixed;
     z-index: 999;
-    bottom:0;
-    width:100%;
-    height:15%;
+    bottom: 0;
+    width: 100%;
+    height: 15%;
 }
 
 .top-area {
     position: fixed;
     z-index: 999;
-    top:0;
-    width:100%;
-    height:15%;
+    top: 0;
+    width: 100%;
+    height: 15%;
+}
+
+.credits-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Fill the screen */
+    background-color: black;
+    /* Optional: Black background like credits */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Start the credits at the bottom */
+    overflow: hidden;
+    /* Hide overflow */
+    z-index: 1500;
+    /* Ensure it's above other elements */
+    overflow: hidden;
+    visibility: hidden;
+    transition: opacity 3s ease-in-out;
+}
+
+.credits-container.show {
+    opacity: 1;
+    /* Make visible */
+    visibility: visible;
+    /* Allow interaction */
+}
+
+.credits {
+    color: #D3D3D4;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.5;
+    animation: credits-roll 5s linear forwards;
+    /* Adjust timing :55s*/
+}
+
+.credits h2 {
+    font-style: italic;
+    font-size: 22px;
+    text-transform: uppercase;
+    margin: 120px 0 -8px 0;
+    text-align: center;
+}
+
+.credits img {
+    width: 60%;
+    /* 50% of the container width */
+    margin: 0 auto;
+    /* Center align the images */
+    display: block;
+}
+
+.restart-text {
+    font-style: italic;
+    font-size: 15px;
+    color: #D3D3D4;
+    font-family: 'Roboto Mono', monospace;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+/* Optional hover effect for the restart text */
+.restart-text:hover {
+    text-decoration: underline;
 }
 
 
+
+@keyframes credits-roll {
+    from {
+        transform: translateY(100%);
+        /* Start below the container */
+    }
+
+    to {
+        transform: translateY(-11%);
+        /* End above the container */
+    }
+}

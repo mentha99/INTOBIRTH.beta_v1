@@ -1,8 +1,8 @@
 // Speed for typewriter, the smaller the delay, the faster to type in
-const typeInDelay = 20;
-const deleteDelay = 2;
-const textDuration = 3500;
-const lastTextDuration = 100;
+const typeInDelay = 1; // 20
+const deleteDelay = 1; // 2
+const textDuration = 500; //3500
+const lastTextDuration = 10; //100
 const blankDuration = 400;
 
 // Set up text typewriter

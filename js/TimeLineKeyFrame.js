@@ -20,7 +20,7 @@ const moveSeeTable = 680;
 const moveSeeCake = 760;
 const moveSeeMatch = 800;
 const candleLit = 840;
-const peopleShow = 870;
+const peopleShow = 855;
 const songPlayR1 = 1040;
 const songPlayR2 = 1400;
 const songPlayR3 = 1760;
@@ -34,7 +34,7 @@ const viewToTable = 2840;
 const walkAround = 2940;
 const backHome = 2990;
 const readyLeave = 3330;
-const eyeClose = 3395;
+const eyeClose = 3405;
 const totalFrame = 3600;
 
 

@@ -1,28 +1,71 @@
-// Utility function for mobile detection
-function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent);
-}
+let textEventTriggered = false; // A flag to track the event state
+
+
+let lookedBackOrNot = false;
+let tempTrigger1 = true;
+let tempTrigger2 = true;
+let tempTriggerSong = false;
+
 
 // Get current video frame number
 function currentFrame() {
     return Math.round(video2.currentTime * fps)
 }
 
-let textEventTriggered = false; // A flag to track the event state
-let textEndOrNot = false;
+
+// This function checks the camera's rotation based on the left/right directions.
+let cameraYaw;
+function checkCameraRotation() {
+    const currentCameraForward = new THREE.Vector3(0, 0, -1);
+    camera.getWorldDirection(currentCameraForward);
+    currentCameraForward.normalize();
+    initialCameraForward.normalize();
+    const angle = Math.acos(initialCameraForward.dot(currentCameraForward)); // Angle in radians
+    let angleInDegrees = THREE.MathUtils.radToDeg(angle);
+
+    const currentYawRotation = camera.rotation.y;
+    let deltaYaw = currentYawRotation - initialYawRotation;
+    if (deltaYaw < 0) { angleInDegrees = -angleInDegrees; }
+
+    console.log("camera rotation checking, current yaw:", angleInDegrees);
+    return angleInDegrees;
+}
 
 
 function InteractiveControl() {
     window.addEventListener("keydown", (e) => handleInteraction(e.code));
 
-    // Touch event listeners for mobile interaction
-    if (isMobileDevice()) {
+    if (MobileDeviceOrNot) {
         console.log("Area touching simulate");
-        document.querySelector('.bottom-area').addEventListener("click", () => handleInteraction("Enter"));
-        document.querySelector('.top-area').addEventListener("click", () => handleInteraction("ArrowUp"));
+
+        const bottomArea = document.querySelector('.bottom-area');
+        const topArea = document.querySelector('.top-area');
+
+        function handleTouch(event, action) {
+            event.preventDefault(); // Prevent unintended scrolling or behavior
+            handleInteraction(action);
+        }
+
+        bottomArea.addEventListener("touchstart", (event) => {
+            handleTouch(event, "Enter");
+            console.log("virtual Enter");
+        });
+        topArea.addEventListener("touchstart", (event) => {
+            handleTouch(event, "ArrowUp");
+            console.log("virtual ArrowUp");
+        });
+        renderer.domElement.addEventListener("touchend", (event) => {
+            handleTouch(event, "ArrowLeft");
+            //console.log("touch end");
+        });
     }
 
+
+
     function handleInteraction(action) {
+        if (action === "ArrowDown") {
+            console.log("camera z rotation:", checkCameraRotation());
+        }
         //* * * * * * * * * * * * Section 1 | Path Show * * * * * * * * * * * *
         if (currentFrame() >= eyeOpen && currentFrame() < moveStart) {
             if (action === "Enter" && currentFrame() === eyeOpen) {
@@ -36,25 +79,56 @@ function InteractiveControl() {
                         { text: "..." },
                         { text: "Where am I?" },
                         { text: "The light is so harsh that everything around me is melting into a blur." },
-                        { text: "[Press LEFT/RIGHT on your keyboard<br>or DRAGGING on your screen<br>to look around]" },
+                        { text: "[Press LEFT/RIGHT on the keyboard<br>or DRAGGING on your screen<br>to look around]" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
+                        controls.enabled = true;
+                        if (!MobileDeviceOrNot) { rotateControl.enable() };
+                        console.log("First text ended, control enabled, current frame:", currentFrame());
                     });
                 });
-            } else if (action === "Enter" && currentFrame() >= wakeUp - 1 && currentFrame() <= wakeUp + 1 && textEndOrNot) {
-                handleAudio(SFX_grassWave, "playLoop", 0);
-                handleAudio(SFX_grassWave, "lerpVolume", 0, 0.25);
-                playForwardToTarget(wakeUp, pathShow, () => {
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "Something sounds moving under the ground." },
-                        { text: "[Press ENTER to check what's going on]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
+            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= wakeUp - 1 && currentFrame() <= wakeUp + 1 && textEndOrNot) {
+                //console.log("in to camera checking");
+                cameraYaw = checkCameraRotation();
+
+                if (lookedBackOrNot === false) {
+                    if (cameraYaw > 165 || cameraYaw < -165 && tempTrigger1 === true) {
+                        tempTrigger1 = false;
+                        controls.enabled = false;
+                        if (!MobileDeviceOrNot) { rotateControl.disable() };
+                        textEndOrNot = false;
+                        const textSequence = [
+                            { text: "I guess it's an old bus station." },
+                            { text: "Seems being forgetten by time." },
+                            { text: "Is bus still coming here? What am I waiting for?" },
+                            { text: "Or did I areadly arrive?" },
+                            { text: "[Press LEFT/RIGHT<br>or DRAGGING on your screen<br>to look around]" },
+                        ];
+                        displayTextSequence(textSequence, 0, () => {
+                            textEndOrNot = true;
+                            lookedBackOrNot = true;
+                            controls.enabled = true;
+                            if (!MobileDeviceOrNot) { rotateControl.enable() };
+                            //console.log("lookedBack set to true");
+                        });
+                    }
+                } else {
+                    if (cameraYaw < 10 && cameraYaw > -10 && tempTrigger2 === true) {
+                        tempTrigger2 = false;
+                        handleAudio(SFX_grassWave, "playLoop", 0.3);
+                        playForwardToTarget(wakeUp, pathShow, () => {
+                            textEndOrNot = false;
+                            const textSequence = [
+                                { text: "Something sounds moving under the ground." },
+                                { text: "[Press ENTER to check what's going on]" },
+                            ];
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                            });
+                        });
+                    }
+                }
             } else if (action === "Enter" && currentFrame() >= pathShow - 1 && textEndOrNot) {
                 handleAudio(SFX_grassWave, "stop");
                 handleAudio(SFX_grassGrow, "play");
@@ -71,6 +145,8 @@ function InteractiveControl() {
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
                         console.log("text before moving ends");
+                        tempTrigger1 = true;
+                        tempTrigger2 = true;
                     });
                 });
             }
@@ -100,7 +176,7 @@ function InteractiveControl() {
                 playForwardToTarget(moveSecond + stepLength * 2, moveOnGrass1, () => {
                     textEndOrNot = false;
                     const textSequence = [
-                        { text: "Strange… It seems that grass is starting to grow on the ground." },
+                        { text: "Strange grass." },
                         { text: "[Press UP to move a step forward]" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
@@ -121,8 +197,46 @@ function InteractiveControl() {
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
+                        lookedBackOrNot = false;
+                        console.log("lookedBack set to false");
                     });
                 });
+            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
+                //console.log("in to camera checking");
+                cameraYaw = checkCameraRotation();
+                if (lookedBackOrNot === false) {
+                    if (cameraYaw > 165 || cameraYaw < -165 && tempTrigger1 === true) {
+                        tempTrigger1 = false;
+                        controls.enabled = false;
+                        if (!MobileDeviceOrNot) { rotateControl.disable() };
+                        textEndOrNot = false;
+                        const textSequence = [
+                            { text: "The bus station feels so lonely over there." },
+                            { text: "Honestly, will a bus really arrive?" },
+                            { text: "if not… how did I even get here?" },
+                            { text: "[Press LEFT/RIGHT button<br>or DRAGGING on your screen<br>to look around]" },
+                        ];
+                        displayTextSequence(textSequence, 0, () => {
+                            textEndOrNot = true;
+                            lookedBackOrNot = true;
+                            console.log("lookedBack set to true");
+                            controls.enabled = true;
+                            if (!MobileDeviceOrNot) { rotateControl.enable() };
+                        });
+                    }
+                } else {
+                    if (cameraYaw < 10 && cameraYaw > -10 && tempTrigger2 === true) {
+                        textEndOrNot = false;
+                        const textSequence = [
+                            { text: "[Press UP to move a step forward]" },
+                        ];
+                        displayTextSequence(textSequence, 0, () => {
+                            textEndOrNot = true;
+                            console.log("lookedBack set to false");
+                        });
+                        tempTrigger2 = false;
+                    }
+                }
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
                 handleAudio(SFX_step3, "play");
                 playForwardToTarget(moveOnGrass2, moveOnGrass2 + stepLength);
@@ -200,41 +314,68 @@ function InteractiveControl() {
 
         //* * * * * * * * * * * * Section 3 | Birth Song * * * * * * * * * * * *
         else if (currentFrame() >= candleLit && currentFrame() < candleBlow) {
+            const birthSongVolumeR1 = 0.25;
+            const birthSongVolumeR2 = 0.1;
+            const birthSongSoloVolume = 1;
+            function birthSongSolo(songAudio, angleRangeStart, angleRangeEnd) {
+                if (cameraYaw >= angleRangeStart && cameraYaw < angleRangeEnd) {
+                    console.log(songAudio, "Solotime");
+                    handleAudio(songAudio, "lerpVolume", birthSongVolumeR2, birthSongSoloVolume, 0.5);
+                    tempTriggerSong = true;
+                } else {
+                    if (tempTriggerSong) {
+                        console.log(songAudio, "EndSolotime");
+                        handleAudio(songAudio, "lerpVolume", birthSongSoloVolume, birthSongVolumeR2, 0.5);
+                        tempTriggerSong = false;
+                    }
+                }
+            }
+
+            controls.enabled = true;
+            if (!MobileDeviceOrNot) { rotateControl.enable() };
+
             if (action === "Enter" && currentFrame() >= candleLit - 1 && currentFrame() <= candleLit + 1 && textEndOrNot) {
                 handleAudio(SFX_candleLitUp, "play");
                 playForwardToTarget(candleLit, peopleShow, () => {
+                    handleAudio(SFX_candleLitUp, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Take a deep breath." },
                         { text: "Huff..." },
                         { text: "Okay, let's go." },
-                        { text: "[Press ENTER to light the candle]" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
-                    });
+                        console.log("text ended, current frame:", currentFrame());
+                        handleAudio(SFX_candleLitUp, "play");
+                        handleAudio(SFX_candleBurn, "play");
+                        handleAudio(SFX_candleHum, "playLoop", 0.3);
+                        handleAudio(BGM_inWild, "lerpVolume", 0.3, 0.04);
+                        playForwardToTarget(peopleShow, songPlayR1, () => {
+                            textEndOrNot = false;
+                            const textSequence = [
+                                { text: "It's such a strange feeling. I think I've seen her before," },
+                                { text: "but I can't remember her name." },
+                                { text: "… same for anyone else here." },
+                                { text: "Are they real?" },
+                                { text: "Or are they ghosts?" },
+                                { text: "Also, where is this strange voice coming from?" },
+                                { text: "[Press ENTER to listen]" },
+                            ];
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                            });
+                        });
+                    })
                 });
-            } else if (currentFrame() >= peopleShow - 1 && currentFrame() <= peopleShow + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBurn, "play");
-                handleAudio(SFX_candleHum, "playLoop", 0.3);
-                handleAudio(BGM_inWild, "lerpVolume", 0.3, 0.04);
-                playForwardToTarget(peopleShow, songPlayR1, () => {
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "It's such a strange feeling. I think I've seen her before," },
-                        { text: "but I can't remember her name." },
-                        { text: "… same for anyone else here." },
-                        { text: "Are they real?" },
-                        { text: "Or are they ghosts?" },
-                        { text: "Also, where is this strange voice coming from?" },
-                        { text: "[Press ENTER to focus on the voice]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (currentFrame() >= songPlayR1 - 1 && currentFrame() <= songPlayR1 + 1 && textEndOrNot) {
-                handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.2);
+            } else if (action === "Enter" && currentFrame() >= songPlayR1 - 1 && currentFrame() <= songPlayR1 + 1 && textEndOrNot) {
+                handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.45);
+                handleAudio(BIRTH_Aunt, "play", birthSongVolumeR1);
+                handleAudio(BIRTH_Dad, "play", birthSongVolumeR1);
+                handleAudio(BIRTH_Ella, "play", birthSongVolumeR1);
+                handleAudio(BIRTH_Mom, "play", birthSongVolumeR1);
+                handleAudio(BIRTH_Uncle, "play", birthSongVolumeR1);
+
                 playForwardToTarget(songPlayR1, songPlayR2, () => {
                     textEndOrNot = false;
                     const textSequence = [
@@ -249,8 +390,21 @@ function InteractiveControl() {
                     });
                 });
             } else if (currentFrame() >= songPlayR2 - 1 && currentFrame() <= songPlayR2 + 1 && textEndOrNot) {
+                handleAudio(SFX_candleHum, "lerpVolume", 0.45, 0.35);
+                handleAudio(BIRTH_Aunt, "playLoop", birthSongVolumeR2);
+                handleAudio(BIRTH_Dad, "playLoop", birthSongVolumeR2);
+                handleAudio(BIRTH_Ella, "playLoop", birthSongVolumeR2);
+                handleAudio(BIRTH_Mom, "playLoop", birthSongVolumeR2);
+                handleAudio(BIRTH_Uncle, "playLoop", birthSongVolumeR2);
+
                 handleAudio(SFX_candleHum, "lerpVolume", 0.2, 0.35);
                 playForwardToTarget(songPlayR2, candleBlow, () => {
+                    handleAudio(BIRTH_Aunt, "pause");
+                    handleAudio(BIRTH_Dad, "pause");
+                    handleAudio(BIRTH_Ella, "pause");
+                    handleAudio(BIRTH_Mom, "pause");
+                    handleAudio(BIRTH_Uncle, "pause");
+
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "It stopped. Such a sweet song." },
@@ -263,32 +417,14 @@ function InteractiveControl() {
                         console.log("text before candleBlow ends");
                     });
                 });
-            }
+            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= songPlayR2 + 1 && currentFrame() < candleBlow - 1) {
+                cameraYaw = checkCameraRotation();
 
-            const birthSongVolumeR1 = 0.3;
-            const birthSongVolumeR2 = 0.4;
-            const birthSongVolumeR3 = 0.5;
-            handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.2);
-            birthSongControl(BIRTH_Aunt);
-            birthSongControl(BIRTH_Dad);
-            birthSongControl(BIRTH_Ella);
-            birthSongControl(BIRTH_Mom);
-            birthSongControl(BIRTH_Uncle);
-
-            // birth song volume change in different loop
-            function birthSongControl(songAudio) {
-                if (action === "Enter" && currentFrame() >= songPlayR1 - 1 && currentFrame() <= songPlayR1 + 1) {
-                    handleAudio(songAudio, "play", birthSongVolumeR1);
-                    playForwardToTarget(songPlayR1, songPlayR2);
-                } else if (action === "Enter" && currentFrame() >= songPlayR2 - 1 && currentFrame() <= songPlayR2 + 1) {
-                    handleAudio(songAudio, "play", birthSongVolumeR1);
-                    handleAudio(songAudio, "lerpVolume", birthSongVolumeR1, birthSongVolumeR2);
-                    playForwardToTarget(songPlayR2, songPlayR3);
-                } else if (action === "Enter" && currentFrame() >= songPlayR3 - 1 && currentFrame() <= songPlayR3 + 1) {
-                    handleAudio(songAudio, "play", birthSongVolumeR2);
-                    handleAudio(songAudio, "lerpVolume", birthSongVolumeR2, birthSongVolumeR3);
-                    playForwardToTarget(songPlayR3, candleBlow);
-                }
+                birthSongSolo(BIRTH_Aunt, -30, -10);
+                birthSongSolo(BIRTH_Dad, 10, 30);
+                birthSongSolo(BIRTH_Ella, -50, -30);
+                birthSongSolo(BIRTH_Mom, -10, 10);
+                birthSongSolo(BIRTH_Uncle, 30, 50);
             }
         }
 
@@ -299,6 +435,7 @@ function InteractiveControl() {
                 handleAudio(SFX_candleHum, "lerpVolume", 0.12, 0);
                 handleAudio(BGM_inWild, "lerpVolume", 0.04, 0.15);
                 playForwardToTarget(candleBlow, peopleFade, () => {
+                    handleAudio(SFX_wind, "playLoop",1);
                     handleAudio(SFX_candleBlow, "pause");
                     textEndOrNot = false;
                     const textSequence = [
@@ -307,24 +444,24 @@ function InteractiveControl() {
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
-                    });
-                });
-            } else if (currentFrame() >= peopleFade - 1 && currentFrame() <= peopleFade + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBlow, "play");
-                handleAudio(SFX_candleHum, "pause");
-                playForwardToTarget(peopleFade, skyLit, () => {
-                    handleAudio(SFX_candleBlow, "pause");
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "..." },
-                        { text: "Disappeared." },
-                        { text: "If this is a dream, it could be the weirdest one." },
-                        { text: "But it was nice to have them here." },
-                        { text: "Maybe it's time to leave." },
-                        { text: "[Press ENTER to leave the table]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
+                        handleAudio(SFX_candleBlow, "play");
+                        handleAudio(SFX_candleHum, "pause");
+                        handleAudio(SFX_wind, "lerpVolume", 1, 0, 0.005);
+                        playForwardToTarget(peopleFade, skyLit, () => {
+                            handleAudio(SFX_candleBlow, "pause");
+                            textEndOrNot = false;
+                            const textSequence = [
+                                { text: "..." },
+                                { text: "Disappeared." },
+                                { text: "If this is a dream, it could be the weirdest one." },
+                                { text: "But it was nice to have them here." },
+                                { text: "Maybe it's time to leave." },
+                                { text: "[Press ENTER to leave the table]" },
+                            ];
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                            });
+                        });
                     });
                 });
             } else if (currentFrame() >= skyLit - 1 && currentFrame() <= skyLit + 1 && textEndOrNot) {
@@ -432,14 +569,18 @@ function InteractiveControl() {
                     const textSequence = [
                         { text: "Or I mean," },
                         { text: "to leave the dream..." },
+                        { text: "" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
+                        handleAudio(BGM_inWild, "play");// for debugging
+                        handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5, 0.003);
+                        playForwardToTarget(eyeClose, totalFrame, () => {
+                            console.log("get to totalFrame");
+                            showCredits();
+                        });
                     });
                 });
-            } else if (currentFrame() >= eyeClose - 1 && currentFrame() <= eyeClose + 1 && textEndOrNot) {
-                handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5, 0.003);
-                playForwardToTarget(eyeClose, totalFrame);
             }
         }
     }
