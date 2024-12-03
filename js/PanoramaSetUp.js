@@ -23,6 +23,22 @@ function setupPanorama() {
         console.log("Video is ready.");
         // Once the video is ready, fade out the loading screen
         document.getElementById('loading-screen').classList.add('hidden');
+        // Delay the display of the instruction screen
+        setTimeout(() => {
+            if (!ifInstructionScreenShowed) {
+                instructionScreen.classList.remove('hidden');
+                console.log("instruction show");
+                ifInstructionScreenShowed =true;
+                setTimeout(() => {
+                    // Print initial text
+                    instructionText
+                        .typeString("[Press ENTER to start]")
+                        .start()
+                }, 4000);
+            }
+
+        }, 6000); // 5-second delay
+
 
         // Set up the 3D sphere with the video texture
         const geometry = new THREE.SphereGeometry(2000, 36, 18);
@@ -38,6 +54,7 @@ function setupPanorama() {
 
 }
 
+let ifInstructionScreenShowed = false;
 
 // Render the mask scene
 function renderPanorama() {

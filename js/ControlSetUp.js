@@ -105,7 +105,7 @@ function setUpControl() {
         //this.minAzimuthAngle = 0; // radians, default -Infinity
         //this.maxAzimuthAngle = 0; // radians, default Infinity
 
-        controls.enabled = true; // Disable controls initially
+        controls.enabled = false; // Disable controls initially
 
         rotateControl = horizontalRotateKeyboardControl();
         rotateControl.disable();
@@ -130,7 +130,7 @@ function setUpControl() {
         //this.minAzimuthAngle = 0; // radians, default -Infinity
         //this.maxAzimuthAngle = 0; // radians, default Infinity
 
-        controls.enabled = true; // Disable controls initially
+        controls.enabled = false; // Disable controls initially
         controls.update();
 
         // Add button controls for camera rotation

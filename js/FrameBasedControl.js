@@ -61,6 +61,7 @@ function InteractiveControl() {
     }
 
 
+let ifInstructionScreenHide = true;
 
     function handleInteraction(action) {
         if (action === "ArrowDown") {
@@ -69,6 +70,12 @@ function InteractiveControl() {
         //* * * * * * * * * * * * Section 1 | Path Show * * * * * * * * * * * *
         if (currentFrame() >= eyeOpen && currentFrame() < moveStart) {
             if (action === "Enter" && currentFrame() === eyeOpen) {
+                if(ifInstructionScreenHide){
+                    instructionScreen.classList.add('hidden');
+                    console.log("instruction hide");
+                    ifInstructionScreenHide = false;
+                }
+                    
                 const textSequence = [{ text: "" }];
                 displayTextSequence(textSequence);
                 handleAudio(BGM_inWild, "playLoop", 0);
@@ -429,26 +436,29 @@ function InteractiveControl() {
         }
 
         //* * * * * * * * * * * * Section 4 | Candle Blow * * * * * * * * * * * *
-        else if (currentFrame() >= candleBlow && currentFrame() < backHome) {
+        else if (currentFrame() >= candleBlow && currentFrame() < walkAround) {
             if (action === "Enter" && currentFrame() >= candleBlow - 1 && currentFrame() <= candleBlow + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBlow, "play", 1);
+                handleAudio(SFX_stepCandleBlow, "play");
                 handleAudio(SFX_candleHum, "lerpVolume", 0.12, 0);
                 handleAudio(BGM_inWild, "lerpVolume", 0.04, 0.15);
+                handleAudio(SFX_windPeopleDis, "playLoop");
                 playForwardToTarget(candleBlow, peopleFade, () => {
-                    handleAudio(SFX_wind, "playLoop",1);
-                    handleAudio(SFX_candleBlow, "pause");
+                    handleAudio(SFX_stepCandleBlow, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Hold your wish in your heart." },
                         { text: "Three— Two— One—" },
+                        { text: " " },
+                        { text: " " },
                     ];
                     displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                        handleAudio(SFX_candleBlow, "play");
+                        handleAudio(SFX_blowBreath, "play", 0.75);
                         handleAudio(SFX_candleHum, "pause");
-                        handleAudio(SFX_wind, "lerpVolume", 1, 0, 0.005);
+                        handleAudio(SFX_stepCandleBlow, "play");
+
+                        textEndOrNot = true;
                         playForwardToTarget(peopleFade, skyLit, () => {
-                            handleAudio(SFX_candleBlow, "pause");
+                            handleAudio(SFX_stepCandleBlow, "pause");
                             textEndOrNot = false;
                             const textSequence = [
                                 { text: "..." },
@@ -456,7 +466,107 @@ function InteractiveControl() {
                                 { text: "If this is a dream, it could be the weirdest one." },
                                 { text: "But it was nice to have them here." },
                                 { text: "Maybe it's time to leave." },
-                                { text: "[Press ENTER to leave the table]" },
+                                { text: "" },
+                            ];
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                                handleAudio(SFX_stepCandleBlow, "play");
+                                playForwardToTarget(skyLit, viewToHouse, () => {
+
+                                    textEndOrNot = false;
+                                    const textSequence = [
+                                        { text: "Still the table..." },
+                                        { text: "in this you-know-where wildness, shrouded in blinding fog." },
+                                        { text: "Maybe it's time to find my way back." },
+                                        { text: "" },
+                                    ];
+                                    displayTextSequence(textSequence, 0, () => {
+                                        textEndOrNot = true;
+                                        handleAudio(SFX_grassWaveTurnAround, "play");
+                                        playForwardToTarget(viewToHouse, pathFade, () => {
+
+                                            textEndOrNot = false;
+                                            const textSequence = [
+                                                { text: "That is the way I came here," },
+                                                { text: "but the bus stop is no longer being there. Where is this path leading now?" },
+                                                { text: "It seems like it wants to guide me somewhere else." },
+                                                { text: "" },
+                                            ];
+                                            displayTextSequence(textSequence, 0, () => {
+                                                textEndOrNot = true;
+                                                handleAudio(SFX_grassWaveTurnAround, "pause");
+                                                handleAudio(SFX_pathExtend, "play");
+                                                handleAudio(SFX_windPeopleDis, "lerpVolume", 1, 0);
+                                                playForwardToTarget(pathFade, viewToTable, () => {
+                                                    textEndOrNot = false;
+                                                    const textSequence = [
+                                                        { text: "A house." },
+                                                        { text: "Or," },
+                                                        { text: "A home?" },
+                                                        { text: "Is that where I came from? Or where i'm heading to?" },
+                                                        { text: "Wait, I just realised," },
+                                                        { text: "I have been through all of this before." },
+                                                        { text: "Even the table feels like déjà vu." },
+                                                        { text: "" },
+                                                    ];
+                                                    displayTextSequence(textSequence, 0, () => {
+                                                        textEndOrNot = true;
+                                                        playForwardToTarget(viewToTable, walkAround, () => {
+                                                            console.log("get to walkAround");
+                                                            textEndOrNot = false;
+                                                            handleAudio(SFX_windPeopleDis, "pause");
+                                                            const textSequence = [
+                                                                { text: "Humm, I'm right." },
+                                                                { text: "It is there, standing firmly in my mind palace," },
+                                                                { text: "just as if it's standing right in front of my eyes." },
+                                                                { text: "[Press ENTER to continue]" },
+                                                            ];
+                                                            displayTextSequence(textSequence, 0, () => {
+                                                                textEndOrNot = true;
+                                                                console.log("frame:", currentFrame());
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+        }
+
+
+
+        //* * * * * * * * * * * * Section 5 | Back Home * * * * * * * * * * * *
+        else if (currentFrame() >= walkAround && currentFrame() < totalFrame) {
+            if (action === "Enter" && currentFrame() >= walkAround - 1 && currentFrame() <= walkAround + 1 && textEndOrNot) {
+                textEndOrNot = false;
+                handleAudio(BGM_inWild, "lerpVolume", 0.15, 0.35, 0.003);
+                playForwardToTarget(walkAround, backHome, () => {
+                    // Need audio element
+                    const textSequence = [
+                        { text: "And..." },
+                        { text: "Yes, I have been through all of this before." },
+                        { text: "Not in a dream." },
+                        { text: "Not in a dream..." },
+                        { text: "" },
+                    ];
+                    displayTextSequence(textSequence, 0, () => {
+                        textEndOrNot = true;
+                        playForwardToTarget(backHome, readyLeave, () => {
+                            // Need audio element
+                            textEndOrNot = false;
+                            const textSequence = [
+                                { text: "My house." },
+                                { text: "My home." },
+                                { text: "My living room." },
+                                { text: "My family." },
+                                { text: "The place and people I shared my birthday with." },
+                                { text: "[press LEFT/RIGHT to look around]<br>[press ENTER to leave the room]" },
                             ];
                             displayTextSequence(textSequence, 0, () => {
                                 textEndOrNot = true;
@@ -464,107 +574,9 @@ function InteractiveControl() {
                         });
                     });
                 });
-            } else if (currentFrame() >= skyLit - 1 && currentFrame() <= skyLit + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBlow, "play");
-                playForwardToTarget(skyLit, viewToHouse, () => {
-                    handleAudio(SFX_candleBlow, "pause");
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "Still the table..." },
-                        { text: "in this you-know-where wildness, shrouded in blinding fog." },
-                        { text: "Maybe it's time to find my way back." },
-                        { text: "[Press ENTER to get back to the bus stop]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (action === "Enter" && currentFrame() >= viewToHouse - 1 && currentFrame() <= viewToHouse + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBlow, "play");
-                playForwardToTarget(viewToHouse, pathFade, () => {
-                    handleAudio(SFX_candleBlow, "pause");
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "That is the way I came here," },
-                        { text: "but the bus stop is no longer being there. Where is this path leading now?" },
-                        { text: "It seems like it wants to guide me somewhere else." },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (currentFrame() >= pathFade - 1 && currentFrame() <= pathFade + 1 && textEndOrNot) {
-                handleAudio(SFX_candleBlow, "play");
-                playForwardToTarget(pathFade, viewToTable, () => {
-                    handleAudio(SFX_candleBlow, "pause");
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "A house." },
-                        { text: "Or," },
-                        { text: "A home?" },
-                        { text: "Is that where I came from? Or where i'm heading to?" },
-                        { text: "Wait, I just realised," },
-                        { text: "I have been through all of this before." },
-                        { text: "Even the table feels like déjà vu." },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (currentFrame() >= viewToTable - 1 && currentFrame() <= viewToTable + 1 && textEndOrNot) {
-
-                playForwardToTarget(viewToTable, walkAround, () => {
-                    // Need audio element
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "Humm, I'm right." },
-                        { text: "It is there, standing firmly in my mind palace," },
-                        { text: "just as if it's standing right in front of my eyes." },
-                        { text: "[Press ENTER to continue]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (currentFrame() >= walkAround - 1 && currentFrame() <= walkAround + 1 && textEndOrNot) {
-                handleAudio(BGM_inWild, "lerpVolume", 0.15, 0.35, 0.003);
-                playForwardToTarget(walkAround, backHome, () => {
-                    // Need audio element
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "And..." },
-                        { text: "Yes, I have been through all of this before." },
-                        { text: "Not in a dream." },
-                        { text: "Not in a dream..." },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
             }
-        }
-
-        //* * * * * * * * * * * * Section 5 | Back Home * * * * * * * * * * * *
-        else if (currentFrame() >= backHome && currentFrame() < totalFrame) {
-            if (currentFrame() >= backHome - 1 && currentFrame() <= backHome + 1 && textEndOrNot) {
-                playForwardToTarget(backHome, readyLeave, () => {
-                    // Need audio element
-                    textEndOrNot = false;
-                    const textSequence = [
-                        { text: "My house." },
-                        { text: "My home." },
-                        { text: "My living room." },
-                        { text: "My family." },
-                        { text: "The place and people I shared my birthday with." },
-                        { text: "[press LEFT and RIGHT to look around]<br>[press ENTER to leave the room]" },
-                    ];
-                    displayTextSequence(textSequence, 0, () => {
-                        textEndOrNot = true;
-                    });
-                });
-            } else if (action === "Enter" && currentFrame() >= readyLeave - 1 && currentFrame() <= readyLeave + 1 && textEndOrNot) {
+            else if (action === "Enter" && currentFrame() >= readyLeave - 1 && currentFrame() <= readyLeave + 1 && textEndOrNot) {
                 playForwardToTarget(readyLeave, eyeClose, () => {
-                    // Need audio element
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Or I mean," },
@@ -573,7 +585,7 @@ function InteractiveControl() {
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
-                        handleAudio(BGM_inWild, "play");// for debugging
+                        //handleAudio(BGM_inWild, "play");// for debugging
                         handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5, 0.003);
                         playForwardToTarget(eyeClose, totalFrame, () => {
                             console.log("get to totalFrame");

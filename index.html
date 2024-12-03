@@ -18,12 +18,22 @@
 </head>
 
 <body>
+    <div class="ui-container" style="display: none;">
+        <div class="ui-item">.</div>
+        <div class="ui-item">.</div>
+        <div class="ui-item"><img src="./images/icons/LoadingPage_01.png"></div>
+    </div>
 
 
 
     <!-- Loading Screen -->
     <div id="loading-screen">
         <img src="images/icons/LoadingPage_01.png" alt="LoadingTitle" class="loading-image" />
+    </div>
+
+    <!-- Control Instruction Screen -->
+    <div id="instruction-screen" class="instruction-screen">
+        <img id="instruction-image" src="" alt="Instructions">
     </div>
 
     <!-- Instruction Text -->
@@ -57,6 +67,7 @@
     <script>
         const videoStartFrame = 0; //set to specific frame for debugging
         let textEndOrNot = false; //set to true for debugging
+        const textDebugSpeed = false;
     </script>
 
     <!-- Link audio and image file -->
@@ -74,6 +85,8 @@
     <script src="js/TextPlayer.js"></script>
 
 
+    <!-- Parameter Control for different platform -->
+
 
     <!-- Initialize scene -->
     <script>
@@ -89,6 +102,7 @@
         const sceneFOV = 90;
 
         function init() {
+            setUpInstructionScreen();
             container = document.querySelector(".scene");
 
             // Create scene
@@ -167,7 +181,7 @@
             muteIcon.style.display = isMuted ? 'block' : 'none';
             unmuteIcon.style.display = isMuted ? 'none' : 'block';
         });
-        
+
         // still not working with mobile sounds play
         document.querySelector('.button-container').addEventListener("click", async () => {
             try {

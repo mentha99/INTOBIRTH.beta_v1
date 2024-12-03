@@ -1,19 +1,23 @@
 // Speed for typewriter, the smaller the delay, the faster to type in
-const typeInDelay = 1; // 20
-const deleteDelay = 1; // 2
-const textDuration = 500; //3500
-const lastTextDuration = 10; //100
+let typeInDelay = 30; // 20
+let deleteDelay = 3; // 2
+let textDuration = 3000; //3500
+let lastTextDuration = 80; //100
 const blankDuration = 400;
+
+if (textDebugSpeed) {
+    typeInDelay = 2; // 20
+    deleteDelay = 1; // 2
+    textDuration = 50; //3500
+    lastTextDuration = 10; //100
+}
 
 // Set up text typewriter
 const app = document.getElementById('khj3'); // font
 const instructionText = new Typewriter(app, { loop: false, delay: typeInDelay, cursor: '' }); // disable cursor
 let textID = "";
 
-// Print initial text
-instructionText
-    .typeString("[Press ENTER to start]")
-    .start()
+
 
 function displayTextSequence(sequence, index = 0, onComplete = null) {
     // Check if the current text is the last string in the sequence

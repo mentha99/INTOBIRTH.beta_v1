@@ -1,6 +1,24 @@
+let instructionScreen;
+let instructionImage;
+
 function restartWebsite() {
     location.reload(); // Refreshes the current page
 }
+
+// Function to display the instruction screen
+function setUpInstructionScreen() {
+    instructionScreen = document.getElementById('instruction-screen');
+    instructionImage = document.getElementById('instruction-image');
+
+    // Set the appropriate image based on the parameter
+    if (MobileDeviceOrNot) {
+        instructionImage.src = "images/control_Mobile.png";
+    } else {
+        instructionImage.src = "images/control_PC.png";
+    }
+    instructionScreen.classList.add('hidden');
+}
+
 
 
 function showCredits() {
@@ -11,7 +29,7 @@ function showCredits() {
         'Enter': false,
         'ArrowUp': false
     };
-    
+
     // Listen for keydown events to track when keys are pressed
     window.addEventListener('keydown', (e) => {
         // Set the respective key state to true when pressed
@@ -43,18 +61,27 @@ function showCredits() {
                 <br>a random 3D scene scan
                 <br>captured from my birthday
                 <br>last summer
+                <br><br>
             </p>
+            <img class="content" src="images/rawScan.png" >
 
             <h2>Interactive<br>Web Code</h2>
             <p>writing with HTML, javascript 
                 <br>and Three.js
-                <br>under the rookie's instruction 
-                <br>from my coolest deskmate Eric
-                <br>and troubleshooting support 
+                <br>with troubleshooting support 
                 <br>from ChatGPT
-                <br><br>thank you 
+                <br>and the rookie's instruction 
+                <br>from coolest deskmate Eric
+                <br><br>GPT is great
+                <br>but you are the PRO
+                <br>thank you 
                 <br>Eric and Mr.GPT
+                <br><br>
             </p>
+            <img class="content" src="images/EricWave.jpg" >
+            <p>If anyone is looking for
+                <br>a real web designer
+                <br>please contact eric
 
             <h2>Panorama<br>Animation Scene</h2>
             <p>cooking with Unreal Enging 5
@@ -94,6 +121,11 @@ function showCredits() {
                 <br>in front of this screen
                 <br>for joining the whole journey
                 <br>together with me
+                <br><br>Will be REALLY GLAD
+                <br>to see any feedback
+                <br>or bug reports
+                <br>can find me on Instagram
+                <br>@_mentha99
                 <br>        
                 <br>Wish you have a sweet dream
                 <br><br>
@@ -103,7 +135,7 @@ function showCredits() {
             </p>
             <h2><br><br><br><br><br><br><br><br><br><br><br><br></h2>
 
-            <img src="images/icons/LoadingPage_01.png" alt="Team">
+            <img class="logo" src="images/icons/LoadingPage_01.png">
             <p></p>
             <p class="restart-text" onclick="restartWebsite()">Click here or<br>press Enter and Up button together<br>to be into birth again</p>
           </div>
@@ -112,7 +144,7 @@ function showCredits() {
     }
     // Show the credits
     creditsContainer.classList.add("show");
-    
+
 
     // Optionally hide credits after animation ends
     const animationDuration = 500000; // Match animation duration in CSS

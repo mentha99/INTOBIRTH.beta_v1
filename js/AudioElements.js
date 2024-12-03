@@ -6,7 +6,16 @@ const SFX_grassWave = new Audio("audio/SFX_grassWave.mp3");
 const SFX_grassGrow = new Audio("audio/SFX_grassGrow.mp3");
 const SFX_candleHum = new Audio("audio/SFX_candleHumming.mp3");
 const SFX_candleBlow = new Audio("audio/SFX_candleBlow.mp3");
-const SFX_wind = new Audio("audio/SFX_wind.mp3");
+
+const SFX_blowBreath = new Audio("audio/SFX_blowBreath.mp3");
+const SFX_grassWaveTurnAround = new Audio("audio/SFX_grassWaveTurnAround.mp3");
+const SFX_pathExtend = new Audio("audio/SFX_pathExtend.mp3");
+const SFX_stepCandleBlow = new Audio("audio/SFX_stepCandleBlow.mp3");
+const SFX_turnAround = new Audio("audio/SFX_turnAround.mp3");
+const SFX_turnAround2 = new Audio("audio/SFX_turnAround2.mp3");
+const SFX_windPeopleDis = new Audio("audio/SFX_windPeopleDisappear.mp3");
+
+
 
 
 const BIRTH_Aunt = new Audio("audio/Birth_Aunt.mp3");
@@ -38,6 +47,13 @@ const allAudioElements = [
     SFX_step2,
     SFX_step3,
     SFX_step4,
+    SFX_blowBreath,
+    SFX_grassWaveTurnAround,
+    SFX_pathExtend,
+    SFX_stepCandleBlow,
+    SFX_turnAround,
+    SFX_turnAround2,
+    SFX_windPeopleDis,
 ];
 
 // Function to load all audio elements
