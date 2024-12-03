@@ -32,7 +32,7 @@ function setupPanorama() {
                 setTimeout(() => {
                     // Print initial text
                     instructionText
-                        .typeString("[Press ENTER to start]")
+                        .typeString("[Press ENTER to start]<br>Currently the audio<br>ONLY work on laptop/PC<br>* Fixing in progress * ")
                         .start()
                 }, 4000);
             }

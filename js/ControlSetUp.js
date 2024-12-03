@@ -1,6 +1,6 @@
 // Speed for keyboard herizontal rotation
-const rotationStep = Math.PI / 11; // the smaller the faster per button pressed
-const lerpFactor = 0.06; // the bigger the smoother
+const rotationStep = Math.PI / 8; // the smaller the faster per button pressed
+const lerpFactor = 0.1; // the bigger the smoother
 
 
 // Device detect for different control set up

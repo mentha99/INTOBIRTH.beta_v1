@@ -53,7 +53,7 @@ function showCredits() {
         creditsContainer.innerHTML = `
           <div class="credits">
             <h2>INTO BIRTH</h2>
-            <p>an immersive experience<br>through a surreal birthday revisit</p>
+            <p>an immersive experience<br>through a surreal memory</p>
             
             <h2>Director/<br>Programmer/<br>3DArtist</h2>
             <p>Xinran WU
@@ -135,9 +135,16 @@ function showCredits() {
             </p>
             <h2><br><br><br><br><br><br><br><br><br><br><br><br></h2>
 
+            
             <img class="logo" src="images/icons/LoadingPage_01.png">
-            <p></p>
             <p class="restart-text" onclick="restartWebsite()">Click here or<br>press Enter and Up button together<br>to be into birth again</p>
+            <p><br><br><br><br><br><br>
+                <br>Will be more than GLAD
+                <br>to see any feedback
+                <br>or bug reports :)
+                <br>can find me on Instagram
+                <br>@_mentha99<br><br>
+            </p>
           </div>
         `;
         document.body.appendChild(creditsContainer);

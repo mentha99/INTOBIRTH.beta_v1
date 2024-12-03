@@ -393,17 +393,19 @@ body {
     display: block;
     object-fit: contain;
 }
-@media all and (min-width: 800px) {
+@media all and (min-width: 450px) {
     .credits img {
-        width: 400px;
+        width: 225px;
     }
 }
+
 .credits img.logo {
-    width: 40%;
+    width: 30%;
     /* 50% of the container width */
     margin: 0 auto;
     /* Center align the images */
     display: block;
+    object-fit:contain;
 }
 
 
@@ -415,6 +417,11 @@ body {
     text-transform: uppercase;
     cursor: pointer;
 }
+.debug-text {
+    font-size: 13px;
+    color: #D3D3D4;
+    font-family: 'Roboto Mono', monospace;
+}
 
 /* Optional hover effect for the restart text */
 .restart-text:hover {
@@ -425,27 +432,16 @@ body {
 
 @keyframes credits-roll {
     from {
-        transform: translateY(100%);
+        transform: translateY(110%);
         /* Start below the container */
     }
 
     to {
-        transform: translateY(-9%);
+        transform: translateY(-2%);
         /* End above the container */
     }
 }
 
-@keyframes credits-roll-mobile {
-    from {
-        transform: translateY(100%);
-        /* Start below the container */
-    }
-
-    to {
-        transform: translateY(-12%);
-        /* End above the container */
-    }
-}
 
 .ui-container {
     position: absolute;
