@@ -22,19 +22,28 @@ function setupPanorama() {
     video2.addEventListener('canplaythrough', () => {
         console.log("Video is ready.");
         // Once the video is ready, fade out the loading screen
-        document.getElementById('loading-screen').classList.add('hidden');
+        loadingScreen.classList.add('hidden');
         // Delay the display of the instruction screen
         setTimeout(() => {
             if (!ifInstructionScreenShowed) {
                 instructionScreen.classList.remove('hidden');
                 console.log("instruction show");
-                ifInstructionScreenShowed =true;
-                setTimeout(() => {
-                    // Print initial text
-                    instructionText
-                        .typeString("[Press ENTER to start]<br>Currently the audio<br>ONLY work on laptop/PC<br>* Fixing in progress * ")
-                        .start()
-                }, 4000);
+                ifInstructionScreenShowed = true;
+                if (isMobileDevice) {
+                    setTimeout(() => {
+                        // Print initial text
+                        instructionText
+                            .typeString("[Now CLICK at the BOTTOM<br>to start]")
+                            .start()
+                    }, 4000);
+                } else {
+                    setTimeout(() => {
+                        // Print initial text
+                        instructionText
+                            .typeString("[Now press ENTER to start]")
+                            .start()
+                    }, 4000);
+                }
             }
 
         }, 6000); // 5-second delay

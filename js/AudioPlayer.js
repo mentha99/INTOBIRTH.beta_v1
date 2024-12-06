@@ -8,25 +8,34 @@
 
 function handleAudio(audioFile, action, volume = 1.0, targetVolume = 1.0, lerpSpeed = 0.01) {
     let lerpInterval;
+
+    // .volume is not working on Mobile Device
+
     switch (action) {
         case "play":
-            audioFile.loop = false; // Enable/disable looping
-            audioFile.volume = volume;
-            audioFile.play();
+            audioFile.currentTime = 0;
+            audioFile.volume = volume; // not working with Mobile device
+            audioFile.muted = false;
             break;
         case "playLoop":
-            audioFile.loop = true; // Enable/disable looping
+            audioFile.currentTime = 0;
+            audioFile.volume = volume; // not working with Mobile device
+            audioFile.muted = false;
+            break;
+        case "playCurrent":
             audioFile.volume = volume;
-            audioFile.play();
+            audioFile.loop = false;
+            audioFile.muted = false;
+            break;
+        case "init":
+            audioFile.currentTime = 0;
+            audioFile.muted = true;
             break;
         case "pause":
-            audioFile.pause();
+            audioFile.muted = true;
             break;
-        case "stop":
-            audioFile.pause();
-            audioFile.currentTime = 0; // Reset the audio to the start
-            break;
-        case "lerpVolume":
+
+        case "lerpVolume": // not working with mobile
             if (lerpInterval) {
                 clearInterval(lerpInterval); // Clear any existing lerp interval
             }
@@ -41,9 +50,7 @@ function handleAudio(audioFile, action, volume = 1.0, targetVolume = 1.0, lerpSp
                 }
             }, intervalTime); // Frequency of updates
             break;
-        case "loop":
-            audioFile.loop = loop; // Set the loop property dynamically
-            break;
+
         default:
             console.warn("Invalid audio action");
     }

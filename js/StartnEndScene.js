@@ -1,5 +1,7 @@
-let instructionScreen;
-let instructionImage;
+const instructionScreen = document.getElementById('instruction-screen');
+const instructionImage = document.getElementById('instruction-image');
+const instructionTopArea = document.getElementById('topAreaShow');
+const instructionBottomArea = document.getElementById('bottomAreaShow');
 
 function restartWebsite() {
     location.reload(); // Refreshes the current page
@@ -7,14 +9,16 @@ function restartWebsite() {
 
 // Function to display the instruction screen
 function setUpInstructionScreen() {
-    instructionScreen = document.getElementById('instruction-screen');
-    instructionImage = document.getElementById('instruction-image');
-
     // Set the appropriate image based on the parameter
     if (MobileDeviceOrNot) {
+        //console.log("get image scr link");
         instructionImage.src = "images/control_Mobile.png";
+        instructionTopArea.src ="images/icons/solidArea.png";
+        instructionBottomArea.src ="images/icons/solidArea.png";
     } else {
         instructionImage.src = "images/control_PC.png";
+        instructionTopArea.src ="images/icons/transArea.png";
+        instructionBottomArea.src ="images/icons/transArea.png";
     }
     instructionScreen.classList.add('hidden');
 }
@@ -121,11 +125,7 @@ function showCredits() {
                 <br>in front of this screen
                 <br>for joining the whole journey
                 <br>together with me
-                <br><br>Will be REALLY GLAD
-                <br>to see any feedback
-                <br>or bug reports
-                <br>can find me on Instagram
-                <br>@_mentha99
+                <br><br>
                 <br>        
                 <br>Wish you have a sweet dream
                 <br><br>

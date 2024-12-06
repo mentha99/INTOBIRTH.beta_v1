@@ -6,6 +6,13 @@ let tempTrigger1 = true;
 let tempTrigger2 = true;
 let tempTriggerSong = false;
 
+let lookArBackAngle;
+if (MobileDeviceOrNot) {
+    lookArBackAngle = 165;
+} else {
+    lookArBackAngle = 155;
+}
+
 
 // Get current video frame number
 function currentFrame() {
@@ -61,7 +68,7 @@ function InteractiveControl() {
     }
 
 
-let ifInstructionScreenHide = true;
+    let ifInstructionScreenHide = true;
 
     function handleInteraction(action) {
         if (action === "ArrowDown") {
@@ -70,23 +77,32 @@ let ifInstructionScreenHide = true;
         //* * * * * * * * * * * * Section 1 | Path Show * * * * * * * * * * * *
         if (currentFrame() >= eyeOpen && currentFrame() < moveStart) {
             if (action === "Enter" && currentFrame() === eyeOpen) {
-                if(ifInstructionScreenHide){
+                if (ifInstructionScreenHide) {
                     instructionScreen.classList.add('hidden');
                     console.log("instruction hide");
                     ifInstructionScreenHide = false;
                 }
-                    
+
                 const textSequence = [{ text: "" }];
                 displayTextSequence(textSequence);
-                handleAudio(BGM_inWild, "playLoop", 0);
-                handleAudio(BGM_inWild, "lerpVolume", 0, 0.08, lerpSpeed = 0.001);
+
+                // BGM start play
+                if (MobileDeviceOrNot) {
+                    //mobile device can not use volume control
+                    handleAudio(BGM_inWild_s10, "playLoop");
+                    console.log("BGM for mobile start playing");
+                } else {
+                    handleAudio(BGM_inWild, "playLoop", 0);
+                    handleAudio(BGM_inWild, "lerpVolume", 0, 0.08, lerpSpeed = 0.001);
+                }
+
                 playForwardToTarget(eyeOpen, wakeUp, () => {
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "..." },
                         { text: "Where am I?" },
                         { text: "The light is so harsh that everything around me is melting into a blur." },
-                        { text: "[Press LEFT/RIGHT on the keyboard<br>or DRAGGING on your screen<br>to look around]" },
+                        { text: "[Press LEFT/RIGHT on the keyboard<br>or DRAG on your screen<br>to look around]" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
@@ -96,11 +112,9 @@ let ifInstructionScreenHide = true;
                     });
                 });
             } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= wakeUp - 1 && currentFrame() <= wakeUp + 1 && textEndOrNot) {
-                //console.log("in to camera checking");
                 cameraYaw = checkCameraRotation();
-
                 if (lookedBackOrNot === false) {
-                    if (cameraYaw > 165 || cameraYaw < -165 && tempTrigger1 === true) {
+                    if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle && tempTrigger1 === true) {
                         tempTrigger1 = false;
                         controls.enabled = false;
                         if (!MobileDeviceOrNot) { rotateControl.disable() };
@@ -109,8 +123,8 @@ let ifInstructionScreenHide = true;
                             { text: "I guess it's an old bus station." },
                             { text: "Seems being forgetten by time." },
                             { text: "Is bus still coming here? What am I waiting for?" },
-                            { text: "Or did I areadly arrive?" },
-                            { text: "[Press LEFT/RIGHT<br>or DRAGGING on your screen<br>to look around]" },
+                            { text: "Or did I already arrive?" },
+                            { text: "[Press LEFT/RIGHT<br>or DRAG on your screen<br>to look around]" },
                         ];
                         displayTextSequence(textSequence, 0, () => {
                             textEndOrNot = true;
@@ -123,7 +137,7 @@ let ifInstructionScreenHide = true;
                 } else {
                     if (cameraYaw < 10 && cameraYaw > -10 && tempTrigger2 === true) {
                         tempTrigger2 = false;
-                        handleAudio(SFX_grassWave, "playLoop", 0.3);
+                        handleAudio(SFX_grassWave, "playLoop");
                         playForwardToTarget(wakeUp, pathShow, () => {
                             textEndOrNot = false;
                             const textSequence = [
@@ -132,15 +146,26 @@ let ifInstructionScreenHide = true;
                             ];
                             displayTextSequence(textSequence, 0, () => {
                                 textEndOrNot = true;
+                                instructionScreenShow("bottom");
+
+                                // show touching area at the bottom
+
                             });
                         });
                     }
                 }
             } else if (action === "Enter" && currentFrame() >= pathShow - 1 && textEndOrNot) {
-                handleAudio(SFX_grassWave, "stop");
+                instructionScreenShow("reset");
+                handleAudio(SFX_grassWave, "pause");
                 handleAudio(SFX_grassGrow, "play");
-                handleAudio(BGM_inWild, "lerpVolume", 0.08, 0.3);
+
+                if (!MobileDeviceOrNot) {
+                    handleAudio(BGM_inWild, "lerpVolume", 0.08, 0.3);
+                }
+
                 playForwardToTarget(pathShow, moveStart, () => {
+                    handleAudio(SFX_grassGrow, "pause");
+
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "A path!" },
@@ -150,6 +175,7 @@ let ifInstructionScreenHide = true;
                         { text: "[Press UP to move a step forward]" },
                     ];
                     displayTextSequence(textSequence, 0, () => {
+                        instructionScreenShow("top");
                         textEndOrNot = true;
                         console.log("text before moving ends");
                         tempTrigger1 = true;
@@ -162,8 +188,10 @@ let ifInstructionScreenHide = true;
         //* * * * * * * * * * * * Section 2 | Walk Close * * * * * * * * * * * *
         else if (currentFrame() >= moveStart && currentFrame() < candleLit) {
             if (action === "ArrowUp" && currentFrame() >= moveStart - 1 && currentFrame() <= moveStart + 1 && textEndOrNot) {
+                instructionScreenShow("reset");
                 handleAudio(SFX_step1, "play");
                 playForwardToTarget(moveStart, moveSecond, () => {
+                    handleAudio(SFX_step1, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "[Press UP to move another step forward]" },
@@ -174,13 +202,18 @@ let ifInstructionScreenHide = true;
                 });
             } else if (action === "ArrowUp" && currentFrame() >= moveSecond - 1 && currentFrame() <= moveSecond + 1 && textEndOrNot) {
                 handleAudio(SFX_step1, "play");
-                playForwardToTarget(moveSecond, moveSecond + stepLength)
+                playForwardToTarget(moveSecond, moveSecond + stepLength, () => {
+                    handleAudio(SFX_step1, "pause");
+                });
             } else if (action === "ArrowUp" && currentFrame() >= moveSecond + stepLength - 1 && currentFrame() <= moveSecond + stepLength + 1) {
                 handleAudio(SFX_step1, "play");
-                playForwardToTarget(moveSecond + stepLength, moveSecond + stepLength * 2);
+                playForwardToTarget(moveSecond + stepLength, moveSecond + stepLength * 2, () => {
+                    handleAudio(SFX_step1, "pause");
+                });
             } else if (action === "ArrowUp" && currentFrame() >= moveSecond + stepLength * 2 - 1 && currentFrame() <= moveSecond + stepLength * 2 + 1) {
                 handleAudio(SFX_step1, "play");
                 playForwardToTarget(moveSecond + stepLength * 2, moveOnGrass1, () => {
+                    handleAudio(SFX_step1, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Strange grass." },
@@ -192,10 +225,13 @@ let ifInstructionScreenHide = true;
                 });
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass1 - 1 && currentFrame() <= moveOnGrass1 + 1 && textEndOrNot) {
                 handleAudio(SFX_step2, "play");
-                playForwardToTarget(moveOnGrass1, moveOnGrass1 + stepLength);
+                playForwardToTarget(moveOnGrass1, moveOnGrass1 + stepLength, () => {
+                    handleAudio(SFX_step2, "pause");
+                });
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass1 + stepLength - 1 && currentFrame() <= moveOnGrass1 + stepLength + 1) {
                 handleAudio(SFX_step2, "play");
                 playForwardToTarget(moveOnGrass1 + stepLength, moveOnGrass2, () => {
+                    handleAudio(SFX_step2, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "I feel like I'm being surrounded by an endless grassland..." },
@@ -246,10 +282,13 @@ let ifInstructionScreenHide = true;
                 }
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
                 handleAudio(SFX_step3, "play");
-                playForwardToTarget(moveOnGrass2, moveOnGrass2 + stepLength);
+                playForwardToTarget(moveOnGrass2, moveOnGrass2 + stepLength, () => {
+                    handleAudio(SFX_step3, "pause");
+                });
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 + stepLength - 1 && currentFrame() <= moveOnGrass2 + stepLength + 1) {
                 handleAudio(SFX_step3, "play");
                 playForwardToTarget(moveOnGrass2 + stepLength, moveSeeTable, () => {
+                    handleAudio(SFX_step3, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "It's getting crazier!" },
@@ -264,10 +303,13 @@ let ifInstructionScreenHide = true;
                 });
             } else if (action === "ArrowUp" && currentFrame() >= moveSeeTable - 1 && currentFrame() <= moveSeeTable + 1 && textEndOrNot) {
                 handleAudio(SFX_step4, "play");
-                playForwardToTarget(moveSeeTable, moveSeeTable + stepLength);
+                playForwardToTarget(moveSeeTable, moveSeeTable + stepLength, () => {
+                    handleAudio(SFX_step4, "pause");
+                });
             } else if (action === "ArrowUp" && currentFrame() >= moveSeeTable + stepLength - 1 && currentFrame() <= moveSeeTable + stepLength + 1) {
                 handleAudio(SFX_step4, "play");
                 playForwardToTarget(moveSeeTable + stepLength, moveSeeCake, () => {
+                    handleAudio(SFX_step4, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Now I can see it more clearly. It's a table with a cake on it…" },
@@ -285,6 +327,7 @@ let ifInstructionScreenHide = true;
             } else if (action === "ArrowUp" && currentFrame() >= moveSeeCake - 1 && currentFrame() <= moveSeeCake + 1 && textEndOrNot) {
                 handleAudio(SFX_step4, "play");
                 playForwardToTarget(moveSeeCake, moveSeeMatch, () => {
+                    handleAudio(SFX_step4, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Hmm... is that a matchbox on the table?" },
@@ -301,6 +344,7 @@ let ifInstructionScreenHide = true;
             } else if (action === "ArrowUp" && currentFrame() >= moveSeeMatch - 1 && currentFrame() <= moveSeeMatch + 1 && textEndOrNot) {
                 handleAudio(SFX_step4, "play");
                 playForwardToTarget(moveSeeMatch, candleLit, () => {
+                    handleAudio(SFX_step4, "pause");
                     textEndOrNot = false;
                     const textSequence = [
                         { text: "Yep, a cake, a match, an unlit candle…" },
@@ -327,12 +371,25 @@ let ifInstructionScreenHide = true;
             function birthSongSolo(songAudio, angleRangeStart, angleRangeEnd) {
                 if (cameraYaw >= angleRangeStart && cameraYaw < angleRangeEnd) {
                     console.log(songAudio, "Solotime");
-                    handleAudio(songAudio, "lerpVolume", birthSongVolumeR2, birthSongSoloVolume, 0.5);
+                    handleAudio(songAudio, "lerpVolume", birthSongVolumeR2, birthSongSoloVolume, 0.25);
                     tempTriggerSong = true;
                 } else {
                     if (tempTriggerSong) {
                         console.log(songAudio, "EndSolotime");
-                        handleAudio(songAudio, "lerpVolume", birthSongSoloVolume, birthSongVolumeR2, 0.5);
+                        handleAudio(songAudio, "lerpVolume", birthSongSoloVolume, birthSongVolumeR2, 0.25);
+                        tempTriggerSong = false;
+                    }
+                }
+            }
+            function birthSongSoloMobile(songAudio, angleRangeStart, angleRangeEnd) {
+                if (cameraYaw >= angleRangeStart && cameraYaw < angleRangeEnd) {
+                    console.log(songAudio, "Start mobile solo time");
+                    handleAudio(songAudio, "playCurrent");
+                    tempTriggerSong = true;
+                } else {
+                    if (tempTriggerSong) {
+                        console.log(songAudio, "End mobile solo time");
+                        handleAudio(songAudio, "muted");
                         tempTriggerSong = false;
                     }
                 }
@@ -354,11 +411,21 @@ let ifInstructionScreenHide = true;
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
                         console.log("text ended, current frame:", currentFrame());
-                        handleAudio(SFX_candleLitUp, "play");
+
+                        SFX_candleLitUp.currentTime = 0.625; //(peopleShow - candleLit)/fps
+                        handleAudio(SFX_candleLitUp, "playCurrent");
+
                         handleAudio(SFX_candleBurn, "play");
-                        handleAudio(SFX_candleHum, "playLoop", 0.3);
-                        handleAudio(BGM_inWild, "lerpVolume", 0.3, 0.04);
+
+                        if (MobileDeviceOrNot) {
+                            handleAudio(SFX_candleHum_s12, "playLoop");
+                        } else {
+                            handleAudio(SFX_candleHum, "playLoop", 0.3);
+                            handleAudio(BGM_inWild, "lerpVolume", 0.3, 0.04);
+                        }
+
                         playForwardToTarget(peopleShow, songPlayR1, () => {
+                            handleAudio(SFX_candleLitUp, "pause");
                             textEndOrNot = false;
                             const textSequence = [
                                 { text: "It's such a strange feeling. I think I've seen her before," },
@@ -376,7 +443,10 @@ let ifInstructionScreenHide = true;
                     })
                 });
             } else if (action === "Enter" && currentFrame() >= songPlayR1 - 1 && currentFrame() <= songPlayR1 + 1 && textEndOrNot) {
-                handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.45);
+                if (!MobileDeviceOrNot) {
+                    handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.45);
+                }
+
                 handleAudio(BIRTH_Aunt, "play", birthSongVolumeR1);
                 handleAudio(BIRTH_Dad, "play", birthSongVolumeR1);
                 handleAudio(BIRTH_Ella, "play", birthSongVolumeR1);
@@ -385,6 +455,12 @@ let ifInstructionScreenHide = true;
 
                 playForwardToTarget(songPlayR1, songPlayR2, () => {
                     textEndOrNot = false;
+                    handleAudio(BIRTH_Aunt, "pause");
+                    handleAudio(BIRTH_Dad, "pause");
+                    handleAudio(BIRTH_Ella, "pause");
+                    handleAudio(BIRTH_Mom, "pause");
+                    handleAudio(BIRTH_Uncle, "pause");
+
                     const textSequence = [
                         { text: "Their voices are so so familiar." },
                         { text: "I feel a little bit sad for not being able to recognize them." },
@@ -397,14 +473,23 @@ let ifInstructionScreenHide = true;
                     });
                 });
             } else if (currentFrame() >= songPlayR2 - 1 && currentFrame() <= songPlayR2 + 1 && textEndOrNot) {
-                handleAudio(SFX_candleHum, "lerpVolume", 0.45, 0.35);
-                handleAudio(BIRTH_Aunt, "playLoop", birthSongVolumeR2);
-                handleAudio(BIRTH_Dad, "playLoop", birthSongVolumeR2);
-                handleAudio(BIRTH_Ella, "playLoop", birthSongVolumeR2);
-                handleAudio(BIRTH_Mom, "playLoop", birthSongVolumeR2);
-                handleAudio(BIRTH_Uncle, "playLoop", birthSongVolumeR2);
+                if (MobileDeviceOrNot) {
+                    handleAudio(BIRTH_Aunt, "init");
+                    handleAudio(BIRTH_Dad, "init");
+                    handleAudio(BIRTH_Ella, "init");
+                    handleAudio(BIRTH_Mom, "init");
+                    handleAudio(BIRTH_Uncle, "init");
+                } else {
+                    handleAudio(SFX_candleHum, "lerpVolume", 0.45, 0.3);
+                    handleAudio(BIRTH_Aunt, "playLoop", birthSongVolumeR2);
+                    handleAudio(BIRTH_Dad, "playLoop", birthSongVolumeR2);
+                    handleAudio(BIRTH_Ella, "playLoop", birthSongVolumeR2);
+                    handleAudio(BIRTH_Mom, "playLoop", birthSongVolumeR2);
+                    handleAudio(BIRTH_Uncle, "playLoop", birthSongVolumeR2);
+                }
 
-                handleAudio(SFX_candleHum, "lerpVolume", 0.2, 0.35);
+
+
                 playForwardToTarget(songPlayR2, candleBlow, () => {
                     handleAudio(BIRTH_Aunt, "pause");
                     handleAudio(BIRTH_Dad, "pause");
@@ -427,11 +512,19 @@ let ifInstructionScreenHide = true;
             } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= songPlayR2 + 1 && currentFrame() < candleBlow - 1) {
                 cameraYaw = checkCameraRotation();
 
-                birthSongSolo(BIRTH_Aunt, -30, -10);
-                birthSongSolo(BIRTH_Dad, 10, 30);
-                birthSongSolo(BIRTH_Ella, -50, -30);
-                birthSongSolo(BIRTH_Mom, -10, 10);
-                birthSongSolo(BIRTH_Uncle, 30, 50);
+                if (MobileDeviceOrNot) {
+                    birthSongSoloMobile(BIRTH_Aunt, -30, -10);
+                    birthSongSoloMobile(BIRTH_Dad, 10, 30);
+                    birthSongSoloMobile(BIRTH_Ella, -50, -30);
+                    birthSongSoloMobile(BIRTH_Mom, -10, 10);
+                    birthSongSoloMobile(BIRTH_Uncle, 30, 50);
+                } else {
+                    birthSongSolo(BIRTH_Aunt, -30, -10);
+                    birthSongSolo(BIRTH_Dad, 10, 30);
+                    birthSongSolo(BIRTH_Ella, -50, -30);
+                    birthSongSolo(BIRTH_Mom, -10, 10);
+                    birthSongSolo(BIRTH_Uncle, 30, 50);
+                }
             }
         }
 
@@ -439,9 +532,15 @@ let ifInstructionScreenHide = true;
         else if (currentFrame() >= candleBlow && currentFrame() < walkAround) {
             if (action === "Enter" && currentFrame() >= candleBlow - 1 && currentFrame() <= candleBlow + 1 && textEndOrNot) {
                 handleAudio(SFX_stepCandleBlow, "play");
-                handleAudio(SFX_candleHum, "lerpVolume", 0.12, 0);
-                handleAudio(BGM_inWild, "lerpVolume", 0.04, 0.15);
+                if (MobileDeviceOrNot) {
+                    handleAudio(SFX_candleHum, "pause");
+                } else {
+                    handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0);
+                    handleAudio(BGM_inWild, "lerpVolume", 0.04, 0.15);
+                }
+
                 handleAudio(SFX_windPeopleDis, "playLoop");
+
                 playForwardToTarget(candleBlow, peopleFade, () => {
                     handleAudio(SFX_stepCandleBlow, "pause");
                     textEndOrNot = false;
@@ -452,12 +551,16 @@ let ifInstructionScreenHide = true;
                         { text: " " },
                     ];
                     displayTextSequence(textSequence, 0, () => {
-                        handleAudio(SFX_blowBreath, "play", 0.75);
-                        handleAudio(SFX_candleHum, "pause");
-                        handleAudio(SFX_stepCandleBlow, "play");
+                        SFX_stepCandleBlow.currentTime = (peopleFade - candleBlow) / fps;
+                        handleAudio(SFX_stepCandleBlow, "playCurrent");
+                        handleAudio(SFX_blowBreath, "play");
+                        if (!MobileDeviceOrNot) {
+                            handleAudio(SFX_candleHum, "pause");
+                        }
 
                         textEndOrNot = true;
                         playForwardToTarget(peopleFade, skyLit, () => {
+                            handleAudio(SFX_blowBreath, "pause");
                             handleAudio(SFX_stepCandleBlow, "pause");
                             textEndOrNot = false;
                             const textSequence = [
@@ -470,7 +573,9 @@ let ifInstructionScreenHide = true;
                             ];
                             displayTextSequence(textSequence, 0, () => {
                                 textEndOrNot = true;
-                                handleAudio(SFX_stepCandleBlow, "play");
+                                SFX_stepCandleBlow.currentTime = (skyLit - peopleFade) / fps;
+                                handleAudio(SFX_stepCandleBlow, "playCurrent");
+
                                 playForwardToTarget(skyLit, viewToHouse, () => {
 
                                     textEndOrNot = false;
@@ -496,7 +601,11 @@ let ifInstructionScreenHide = true;
                                                 textEndOrNot = true;
                                                 handleAudio(SFX_grassWaveTurnAround, "pause");
                                                 handleAudio(SFX_pathExtend, "play");
-                                                handleAudio(SFX_windPeopleDis, "lerpVolume", 1, 0);
+                                                if (MobileDeviceOrNot) {
+                                                    handleAudio(SFX_windPeopleDis, "pause");
+                                                } else {
+                                                    handleAudio(SFX_windPeopleDis, "lerpVolume", 1, 0);
+                                                }
                                                 playForwardToTarget(pathFade, viewToTable, () => {
                                                     textEndOrNot = false;
                                                     const textSequence = [
@@ -514,7 +623,9 @@ let ifInstructionScreenHide = true;
                                                         playForwardToTarget(viewToTable, walkAround, () => {
                                                             console.log("get to walkAround");
                                                             textEndOrNot = false;
-                                                            handleAudio(SFX_windPeopleDis, "pause");
+                                                            if (!MobileDeviceOrNot) {
+                                                                handleAudio(SFX_windPeopleDis, "pause");
+                                                            }
                                                             const textSequence = [
                                                                 { text: "Humm, I'm right." },
                                                                 { text: "It is there, standing firmly in my mind palace," },
@@ -545,7 +656,10 @@ let ifInstructionScreenHide = true;
         else if (currentFrame() >= walkAround && currentFrame() < totalFrame) {
             if (action === "Enter" && currentFrame() >= walkAround - 1 && currentFrame() <= walkAround + 1 && textEndOrNot) {
                 textEndOrNot = false;
-                handleAudio(BGM_inWild, "lerpVolume", 0.15, 0.35, 0.003);
+                if (MobileDeviceOrNot) {
+                    handleAudio(BGM_inWild, "lerpVolume", 0.15, 0.35, 0.003);
+                }
+
                 playForwardToTarget(walkAround, backHome, () => {
                     // Need audio element
                     const textSequence = [
@@ -585,8 +699,10 @@ let ifInstructionScreenHide = true;
                     ];
                     displayTextSequence(textSequence, 0, () => {
                         textEndOrNot = true;
-                        //handleAudio(BGM_inWild, "play");// for debugging
-                        handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5, 0.003);
+                        if (MobileDeviceOrNot) {
+                            handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5, 0.003);
+                        }
+
                         playForwardToTarget(eyeClose, totalFrame, () => {
                             console.log("get to totalFrame");
                             showCredits();
@@ -597,36 +713,6 @@ let ifInstructionScreenHide = true;
         }
     }
 }
-
-
-/*
-else if (action === "Space" && Math.floor(video2.currentTime * fps) === candleLit) {
-    handleAudio(SFX_candleLitUp, "play");
-    handleAudio(SFX_candleHum, "playLoop", 0.3);
-    handleAudio(BGM_inWild, "lerpVolume", 0.3, 0.04);
-    playForwardToTarget(candleLit, songPlay);
-} else if (action === "Space" && Math.floor(video2.currentTime * fps) === songPlayR1) {
-    handleAudio(SFX_candleHum, "lerpVolume", 0.3, 0.12);
-    playForwardToTarget(songPlay, candleBlow);
-} else if (Math.floor(video2.currentTime * fps) === candleBlow) {
-    if (action === "Backspace") { // to blow the candle
-        handleAudio(SFX_candleBlow, "play", 0.75);
-        handleAudio(SFX_candleHum, "lerpVolume", 0.12, 0);
-        handleAudio(BGM_inWild, "lerpVolume", 0.04, 0.15);
-        playForwardToTarget(candleBlow, backRoom);
-    } else if (action === "Space") { // to hear the song again
-        playForwardToTarget(songPlay + songLength, candleBlow);
-    }
-} else if (action === "Backspace" && Math.floor(video2.currentTime * fps) === backHome) {
-    handleAudio(BGM_inWild, "lerpVolume", 0.15, 0.35);
-    handleAudio(SFX_candleHum, "stop");
-    playForwardToTarget(backRoom, totalFrames - 5);
-} else if (action === "Space" && Math.floor(video2.currentTime * fps) === totalFrames - 5) {
-    handleAudio(BGM_inWild, "lerpVolume", 0.35, 0.5);
-    playForwardToTarget(totalFrames - 5, totalFrames);
-}
-    */
-
 
 
 

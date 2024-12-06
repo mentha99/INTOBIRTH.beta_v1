@@ -34,7 +34,9 @@
 
     <!-- Control Instruction Screen -->
     <div id="instruction-screen" class="instruction-screen">
-        <img id="instruction-image" src="" alt="Instructions">
+        <img class="info" class="hidden" id="instruction-image" src="" alt="Instruction"/>
+        <img class="clickAreaInfoTop" id="topAreaShow" src="" alt="Top Area"/>
+        <img class="clickAreaInfoBottom" id="bottomAreaShow" src="" alt="Bottom Area"/>
     </div>
 
     <!-- Instruction Text -->
@@ -45,9 +47,13 @@
     </div>
 
     <!-- Icon Button Container -->
-    <div class="button-container">
+    <div class="mute-button-container">
         <img id="muteIcon" src="images/icons/mute.svg" alt="Mute" class="mute-icon" style="display: none;" />
         <img id="unmuteIcon" src="images/icons/unmute.svg" alt="Unmute" class="mute-icon" />
+    </div>
+    <div class="info-button-container">
+        <img id="instructionIcon" src="images/icons/questionMark.svg" alt="Instruction" class="mute-icon" />
+        <img id="backIcon" src="images/icons/backArrow.svg" alt="Get Back" class="mute-icon" style="display: none;" />
     </div>
 
     <!-- Mobile Touch Area Container -->
@@ -58,24 +64,58 @@
     <!-- Panorama Scene -->
     <div class="three-container">
         <div class="scene"></div>
-        <video id="video2" playsinline webkit-playsinline src="images/20241129_2k.mp4" style="display: none;"></video>
+        <video id="video2" playsinline muted webkit-playsinline src="images/20241129_2k.mp4"
+            style="display: none;"></video>
     </div>
+
+
+    <!-- Audio elements with autoplay and muted -->
+    <audio id="BGM_inWild" src="audio/BGM_EATEOT.mp3" autoplay muted loop preload></audio>
+
+    <audio id="SFX_candleLitUp" src="audio/SFX_candleLitUp.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_candleBurn" src="audio/SFX_candleBurn.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_grassWave" src="audio/SFX_grassWave.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_grassGrow" src="audio/SFX_grassGrow.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_candleHum" src="audio/SFX_candleHumming.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_candleBlow" src="audio/SFX_candleBlow.mp3" autoplay muted loop preload></audio>
+
+    <audio id="SFX_blowBreath" src="audio/SFX_blowBreath.mp3" autoplay muted loop></audio>
+    <audio id="SFX_grassWaveTurnAround" src="audio/SFX_grassWaveTurnAround.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_pathExtend" src="audio/SFX_pathExtend.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_stepCandleBlow" src="audio/SFX_stepCandleBlow.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_turnAround" src="audio/SFX_turnAround.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_turnAround2" src="audio/SFX_turnAround2.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_windPeopleDis" src="audio/SFX_windPeopleDisappear.mp3" autoplay muted loop preload></audio>
+
+    <audio id="BIRTH_Aunt" src="audio/Birth_Aunt.mp3" autoplay muted loop preload></audio>
+    <audio id="BIRTH_Dad" src="audio/Birth_Dad.mp3" autoplay muted loop preload></audio>
+    <audio id="BIRTH_Ella" src="audio/Birth_Ella.mp3" autoplay muted loop preload></audio>
+    <audio id="BIRTH_Mom" src="audio/Birth_Mom.mp3" autoplay muted loop preload loop preload></audio>
+    <audio id="BIRTH_Uncle" src="audio/Birth_Uncle.mp3" autoplay muted loop preload></audio>
+
+    <audio id="SFX_step1" src="audio/SFX_step1.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_step2" src="audio/SFX_step2.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_step3" src="audio/SFX_step3.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_step4" src="audio/SFX_step4.mp3" autoplay muted loop preload></audio>
+
+    <!-- Audio elements adjust volume for mobile only-->
+    <audio id="BGM_inWild_s10" src="audio/forMobile/BGM_EATEOT_s10.mp3" autoplay muted loop preload></audio>
+    <audio id="SFX_candleHum_s12" src="audio/forMobile/SFX_candleHumming_s12.mp3" autoplay muted loop preload></audio>
+
+
 
     <!-- Time line keyframe -->
     <script src="js/TimeLineKeyFrame.js"></script>
 
     <!-- Debugging Paremeter -->
-    <script>
-        const videoStartFrame = 0; //set to specific frame for debugging
-        let textEndOrNot = false; //set to true for debugging
-        const textDebugSpeed = false;
-    </script>
+    <script src="js/DEBUG.js"></script>
 
     <!-- Link audio and image file -->
     <script src="js/AudioElements.js"></script>
     <script src="js/StartnEndScene.js"></script>
 
     <!-- Tool set up -->
+    <script src="js/IconControl.js"></script>
     <script src="js/PanoramaSetUp.js"></script>
     <script src="js/ControlSetUp.js"></script>
     <script src="js/VideoPlayer.js"></script>
@@ -85,8 +125,6 @@
     <script src="js/AudioHover.js"></script>
     <script src="js/TextPlayer.js"></script>
 
-
-    <!-- Parameter Control for different platform -->
 
 
     <!-- Initialize scene -->
@@ -98,8 +136,6 @@
         let initialYawRotation;
         let rotateControl; // Declare in a higher scope
         const MobileDeviceOrNot = isMobileDevice();
-        const mouseRotate = true;
-
         const sceneFOV = 90;
 
         function init() {
@@ -136,20 +172,6 @@
             // Setup start textures and sphere geometry
             setupPanorama();
             setUpControl();
-
-
-            /* Hover Birth song player
-            // Create a raycaster outside of the function
-            const raycaster = new THREE.Raycaster();
-
-            // Usage example for three icons
-            addAudioIcon('images/music_icon_01.png', 'audio/Birth_Uncle.mp3', new THREE.Vector3(-891, 450, -638), raycaster);
-            addAudioIcon('images/music_icon_02.png', 'audio/Birth_Dad.mp3', new THREE.Vector3(-359, 722, -888), raycaster);
-            addAudioIcon('images/music_icon_03.png', 'audio/Birth_Mom.mp3', new THREE.Vector3(97, 770, -927), raycaster);
-            addAudioIcon('images/music_icon_04.png', 'audio/Birth_Aunt.mp3', new THREE.Vector3(700, 722, -653), raycaster);
-            addAudioIcon('images/music_icon_05.png', 'audio/Birth_Ella.mp3', new THREE.Vector3(860, 833, 75), raycaster);
-            */
-
         }
         init();
 
@@ -163,39 +185,6 @@
     <!-- Main controller -->
     <script src="js/FrameBasedControl.js"></script>
 
-    <script>
-        const muteIcon = document.getElementById('muteIcon');
-        const unmuteIcon = document.getElementById('unmuteIcon');
-        let isMuted = false;
-
-        // Handle mute/unmute toggle
-        document.querySelector('.button-container').addEventListener('click', () => {
-            isMuted = !isMuted;
-            console.log("isMuted = true");
-
-            // Mute or unmute all audio and video elements
-            allAudioElements.forEach((audio) => {
-                audio.muted = isMuted; // Set the muted property
-            });
-
-            // Toggle visibility of the icons
-            muteIcon.style.display = isMuted ? 'block' : 'none';
-            unmuteIcon.style.display = isMuted ? 'none' : 'block';
-        });
-
-        // still not working with mobile sounds play
-        document.querySelector('.button-container').addEventListener("click", async () => {
-            try {
-                await loadAllAudioOnClick(allAudioElements); // Load all audio files
-                console.log("Audio loading process completed.");
-                // Optionally, perform other actions once audio is loaded
-            } catch (error) {
-                console.error("Error loading audio:", error);
-            }
-        });
-
-
-    </script>
 
 </body>
 
