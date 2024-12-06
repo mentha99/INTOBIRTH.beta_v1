@@ -1,7 +1,7 @@
 // Speed for typewriter, the smaller the delay, the faster to type in
 let typeInDelay = 30; // 20
 let deleteDelay = 3; // 2
-let textDuration = 3000; //3500
+let textDuration = 2500; //3500
 let lastTextDuration = 80; //100
 const blankDuration = 400;
 

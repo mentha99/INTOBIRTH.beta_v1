@@ -114,8 +114,7 @@ function InteractiveControl() {
             } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= wakeUp - 1 && currentFrame() <= wakeUp + 1 && textEndOrNot) {
                 cameraYaw = checkCameraRotation();
                 if (lookedBackOrNot === false) {
-                    if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle && tempTrigger1 === true) {
-                        tempTrigger1 = false;
+                    if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle) {
                         controls.enabled = false;
                         if (!MobileDeviceOrNot) { rotateControl.disable() };
                         textEndOrNot = false;
@@ -126,17 +125,19 @@ function InteractiveControl() {
                             { text: "Or did I already arrive?" },
                             { text: "[Press LEFT/RIGHT<br>or DRAG on your screen<br>to look around]" },
                         ];
-                        displayTextSequence(textSequence, 0, () => {
-                            textEndOrNot = true;
-                            lookedBackOrNot = true;
-                            controls.enabled = true;
-                            if (!MobileDeviceOrNot) { rotateControl.enable() };
-                            //console.log("lookedBack set to true");
-                        });
+                        if(tempTrigger1){
+                            tempTrigger1 = false;
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                                lookedBackOrNot = true;
+                                controls.enabled = true;
+                                if (!MobileDeviceOrNot) { rotateControl.enable() };
+                                //console.log("lookedBack set to true");
+                            });
+                        }
                     }
                 } else {
-                    if (cameraYaw < 25 && cameraYaw > -25 && tempTrigger2 === true) {
-                        tempTrigger2 = false;
+                    if (cameraYaw < 25 && cameraYaw > -25) {
                         handleAudio(SFX_grassWave, "playLoop");
                         playForwardToTarget(wakeUp, pathShow, () => {
                             textEndOrNot = false;
@@ -144,13 +145,13 @@ function InteractiveControl() {
                                 { text: "Something sounds moving under the ground." },
                                 { text: "[Press ENTER to check what's going on]" },
                             ];
-                            displayTextSequence(textSequence, 0, () => {
-                                textEndOrNot = true;
-                                instructionScreenShow("bottom");
-
-                                // show touching area at the bottom
-
-                            });
+                            if(tempTrigger2){
+                                tempTrigger2 = false;
+                                displayTextSequence(textSequence, 0, () => {
+                                    textEndOrNot = true;
+                                    instructionScreenShow("bottom");
+                                });
+                            }
                         });
                     }
                 }
@@ -248,8 +249,9 @@ function InteractiveControl() {
                 //console.log("in to camera checking");
                 cameraYaw = checkCameraRotation();
                 if (lookedBackOrNot === false) {
-                    if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle && tempTrigger1 === true) {
-                        tempTrigger1 = false;
+                    if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle) {
+
+                        console.log("look back text triggered.");
                         controls.enabled = false;
                         if (!MobileDeviceOrNot) { rotateControl.disable() };
                         textEndOrNot = false;
@@ -259,25 +261,30 @@ function InteractiveControl() {
                             { text: "if not… how did I even get here?" },
                             { text: "[Press LEFT/RIGHT button<br>or DRAGGING on your screen<br>to look around]" },
                         ];
-                        displayTextSequence(textSequence, 0, () => {
-                            textEndOrNot = true;
-                            lookedBackOrNot = true;
-                            console.log("lookedBack set to true");
-                            controls.enabled = true;
-                            if (!MobileDeviceOrNot) { rotateControl.enable() };
-                        });
+                        if (tempTrigger1) {
+                            tempTrigger1 = false;
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                                lookedBackOrNot = true;
+                                console.log("lookedBack set to true");
+                                controls.enabled = true;
+                                if (!MobileDeviceOrNot) { rotateControl.enable() };
+                            });
+                        }
                     }
                 } else {
-                    if (cameraYaw < 25 && cameraYaw > -25 && tempTrigger2 === true) {
+                    if (cameraYaw < 25 && cameraYaw > -25) {
                         textEndOrNot = false;
                         const textSequence = [
                             { text: "[Press UP to move a step forward]" },
                         ];
-                        displayTextSequence(textSequence, 0, () => {
-                            textEndOrNot = true;
-                            console.log("lookedBack set to false");
-                        });
-                        tempTrigger2 = false;
+                        if (tempTrigger2) {
+                            tempTrigger2 = false;
+                            displayTextSequence(textSequence, 0, () => {
+                                textEndOrNot = true;
+                                console.log("lookedBack set to false");
+                            });
+                        }
                     }
                 }
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
