@@ -24,7 +24,6 @@ function handleAudio(audioFile, action, volume = 1.0, targetVolume = 1.0, lerpSp
             break;
         case "playCurrent":
             audioFile.volume = volume;
-            audioFile.loop = false;
             audioFile.muted = false;
             break;
         case "init":

@@ -26,23 +26,26 @@ function setupPanorama() {
         // Delay the display of the instruction screen
         setTimeout(() => {
             if (!ifInstructionScreenShowed) {
-                instructionScreen.classList.remove('hidden');
+                if(seeInstructionScreenOrNot){
+                    instructionScreen.classList.remove('hidden');
+                }
                 console.log("instruction show");
                 ifInstructionScreenShowed = true;
                 if (MobileDeviceOrNot) {
                     setTimeout(() => {
                         // Print initial text
+                        instructionTopArea.classList.add('hidden');
                         instructionText
-                            .typeString("[Now CLICK at the BOTTOM<br>to start]")
+                            .typeString("[Now CLICK at the BOTTOM<br>to start]<br>*Currently muted button*<br>*not supported on mobile device*")
                             .start()
-                    }, 4000);
+                    }, 5500);
                 } else {
                     setTimeout(() => {
                         // Print initial text
                         instructionText
                             .typeString("[Now press ENTER to start]")
                             .start()
-                    }, 4000);
+                    }, 3500);
                 }
             }
 

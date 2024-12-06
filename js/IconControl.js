@@ -44,8 +44,8 @@ document.querySelector('.info-button-container').addEventListener('click', () =>
     }
 
     // Toggle visibility of the icons
-    instructionIcon.style.display = isInstructionShow ? 'block' : 'none';
-    backIcon.style.display = isInstructionShow ? 'none' : 'block';
+    backIcon.style.display = isInstructionShow ? 'block' : 'none';
+    instructionIcon.style.display = isInstructionShow ? 'none' : 'block';
 
 });
 
@@ -53,17 +53,24 @@ document.querySelector('.info-button-container').addEventListener('click', () =>
 const muteIcon = document.getElementById('muteIcon');
 const unmuteIcon = document.getElementById('unmuteIcon');
 let isMuted = false;
+let hasMutedOrNot = false;
 // Handle mute/unmute toggle
+
 document.querySelector('.mute-button-container').addEventListener('click', () => {
-    isMuted = !isMuted;
-    console.log("isMuted = true");
+    if (!hasMutedOrNot&&!isMobileDevice()) {
+        hasMutedOrNot = true;
+        isMuted = !isMuted;
+        console.log("isMuted = true");
 
-    // Mute or unmute all audio and video elements
-    allAudioElements.forEach((audio) => {
-        audio.muted = isMuted; // Set the muted property
-    });
+        // Mute or unmute all audio and video elements
+        allAudioElements.forEach((audio) => {
+            audio.muted = isMuted; // Set the muted property
+        });
 
-    // Toggle visibility of the icons
-    muteIcon.style.display = isMuted ? 'block' : 'none';
-    unmuteIcon.style.display = isMuted ? 'none' : 'block';
+        // Toggle visibility of the icons
+        muteIcon.style.display = isMuted ? 'block' : 'none';
+        unmuteIcon.style.display = isMuted ? 'none' : 'block';
+    }
 });
+
+
