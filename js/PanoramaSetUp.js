@@ -29,7 +29,7 @@ function setupPanorama() {
                 instructionScreen.classList.remove('hidden');
                 console.log("instruction show");
                 ifInstructionScreenShowed = true;
-                if (isMobileDevice) {
+                if (MobileDeviceOrNot) {
                     setTimeout(() => {
                         // Print initial text
                         instructionText
