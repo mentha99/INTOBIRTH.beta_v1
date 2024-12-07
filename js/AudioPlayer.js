@@ -8,9 +8,12 @@
 
 function handleAudio(audioFile, action, volume = 1.0, targetVolume = 1.0, lerpSpeed = 0.01) {
     let lerpInterval;
-
     // .volume is not working on Mobile Device
-
+    if (!audioFile) {
+        //console.warn("Audio file not found. Skipping action:", action);
+        console.log("no audio founded");
+        return; // Exit the function if the audio file is not defined
+    }
     switch (action) {
         case "play":
             audioFile.currentTime = 0;
@@ -21,6 +24,7 @@ function handleAudio(audioFile, action, volume = 1.0, targetVolume = 1.0, lerpSp
             audioFile.currentTime = 0;
             audioFile.volume = volume; // not working with Mobile device
             audioFile.muted = false;
+            console.log("play in loop");
             break;
         case "playCurrent":
             audioFile.volume = volume;

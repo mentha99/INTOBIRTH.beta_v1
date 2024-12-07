@@ -11,7 +11,10 @@ let allAudioElements;
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM audio already loaded.")
-    // Initialize the audio elements inside the listener
+    getDOMAudioElement();
+});
+
+function getDOMAudioElement() {
     BGM_inWild = document.getElementById("BGM_inWild");
 
     SFX_candleLitUp = document.getElementById("SFX_candleLitUp");
@@ -43,10 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
     BGM_inWild_s10 = document.getElementById("BGM_inWild_s10");
     SFX_candleHum_s12 = document.getElementById("SFX_candleHum_s12");
 
-
-
-
-
     allAudioElements = [
         BGM_inWild,
         SFX_candleLitUp,
@@ -74,6 +73,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
         BGM_inWild_s10,
         SFX_candleHum_s12,
-
     ];
-});
+}

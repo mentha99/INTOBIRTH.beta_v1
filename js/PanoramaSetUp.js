@@ -36,7 +36,7 @@ function setupPanorama() {
                         // Print initial text
                         instructionTopArea.classList.add('hidden');
                         instructionText
-                            .typeString("[Now CLICK at the BOTTOM<br>to start]<br>*Currently muted button*<br>*not supported on mobile device*")
+                            .typeString("[Now CLICK at the BOTTOM<br>to start]")
                             .start()
                     }, 5500);
                 } else {

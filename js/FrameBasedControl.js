@@ -5,6 +5,7 @@ let lookedBackOrNot = false;
 let tempTrigger1 = true;
 let tempTrigger2 = true;
 let tempTriggerSong = false;
+let tempTrigger3 = true;
 
 let lookArBackAngle;
 if (MobileDeviceOrNot) {
@@ -125,7 +126,7 @@ function InteractiveControl() {
                             { text: "Or did I already arrive?" },
                             { text: "[Press LEFT/RIGHT<br>or DRAG on your screen<br>to look around]" },
                         ];
-                        if(tempTrigger1){
+                        if (tempTrigger1) {
                             tempTrigger1 = false;
                             displayTextSequence(textSequence, 0, () => {
                                 textEndOrNot = true;
@@ -137,7 +138,8 @@ function InteractiveControl() {
                         }
                     }
                 } else {
-                    if (cameraYaw < 25 && cameraYaw > -25) {
+                    if (cameraYaw < 25 && cameraYaw > -25&&tempTrigger3) {
+                        tempTrigger3 =false;
                         handleAudio(SFX_grassWave, "playLoop");
                         playForwardToTarget(wakeUp, pathShow, () => {
                             textEndOrNot = false;
@@ -145,7 +147,7 @@ function InteractiveControl() {
                                 { text: "Something sounds moving under the ground." },
                                 { text: "[Press ENTER to check what's going on]" },
                             ];
-                            if(tempTrigger2){
+                            if (tempTrigger2) {
                                 tempTrigger2 = false;
                                 displayTextSequence(textSequence, 0, () => {
                                     textEndOrNot = true;
@@ -155,7 +157,7 @@ function InteractiveControl() {
                         });
                     }
                 }
-            } else if (action === "Enter" && currentFrame() >= pathShow - 1 && textEndOrNot) {
+            } else if (action === "Enter" && currentFrame() >= pathShow - 1 && currentFrame() <= pathShow + 1 && textEndOrNot) {
                 instructionScreenShow("reset");
                 handleAudio(SFX_grassWave, "pause");
                 handleAudio(SFX_grassGrow, "play");
