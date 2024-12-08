@@ -138,10 +138,10 @@ function InteractiveControl() {
                         }
                     }
                 } else {
-                    if (cameraYaw < 25 && cameraYaw > -25&&tempTrigger3) {
-                        tempTrigger3 =false;
+                    if (cameraYaw < 40 && cameraYaw > -40 && tempTrigger3) {
                         handleAudio(SFX_grassWave, "playLoop");
                         playForwardToTarget(wakeUp, pathShow, () => {
+                            tempTrigger3 = false;
                             textEndOrNot = false;
                             const textSequence = [
                                 { text: "Something sounds moving under the ground." },
