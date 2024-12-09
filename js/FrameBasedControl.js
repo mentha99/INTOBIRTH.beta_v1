@@ -248,12 +248,11 @@ function InteractiveControl() {
                         console.log("lookedBack set to false");
                     });
                 });
-            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1) {
+            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
                 //console.log("in to camera checking");
                 cameraYaw = checkCameraRotation();
-                if (lookedBackOrNot === false && textEndOrNot) {
+                if (lookedBackOrNot === false) {
                     if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle) {
-
                         console.log("look back text triggered.");
                         controls.enabled = false;
                         if (!MobileDeviceOrNot) { rotateControl.disable() };
@@ -275,20 +274,17 @@ function InteractiveControl() {
                             });
                         }
                     }
-                } else {
+                } else if (lookedBackOrNot) {
                     if (cameraYaw < 40 && cameraYaw > -40 && textEndOrNot) {
                         lookAtFrontAgain = true;
                         textEndOrNot = false;
                         const textSequence = [
                             { text: "[Press UP to move a step forward]" },
                         ];
-                        if (tempTrigger2) {
-                            tempTrigger2 = false;
-                            displayTextSequence(textSequence, 0, () => {
-                                textEndOrNot = true;
-                                console.log("lookedBack set to false");
-                            });
-                        }
+                        displayTextSequence(textSequence, 0, () => {
+                            textEndOrNot = true;
+                            console.log("lookedBack set to false");
+                        });
                     }
                 }
             } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot && lookAtFrontAgain) {
