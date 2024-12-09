@@ -6,6 +6,7 @@ let tempTrigger1 = true;
 let tempTrigger2 = true;
 let tempTriggerSong = false;
 let tempTrigger3 = true;
+let lookAtFrontAgain = false;
 
 let lookArBackAngle;
 if (MobileDeviceOrNot) {
@@ -247,10 +248,10 @@ function InteractiveControl() {
                         console.log("lookedBack set to false");
                     });
                 });
-            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
+            } else if (action === "ArrowLeft" || action === "ArrowRight" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1) {
                 //console.log("in to camera checking");
                 cameraYaw = checkCameraRotation();
-                if (lookedBackOrNot === false) {
+                if (lookedBackOrNot === false && textEndOrNot) {
                     if (cameraYaw > lookArBackAngle || cameraYaw < -lookArBackAngle) {
 
                         console.log("look back text triggered.");
@@ -261,7 +262,7 @@ function InteractiveControl() {
                             { text: "The bus station feels so lonely over there." },
                             { text: "Honestly, will a bus really arrive?" },
                             { text: "if not… how did I even get here?" },
-                            { text: "[Press LEFT/RIGHT button<br>or DRAGGING on your screen<br>to look around]" },
+                            { text: "[Press LEFT/RIGHT or DRAG on your screen to look around]" },
                         ];
                         if (tempTrigger1) {
                             tempTrigger1 = false;
@@ -275,7 +276,8 @@ function InteractiveControl() {
                         }
                     }
                 } else {
-                    if (cameraYaw < 25 && cameraYaw > -25) {
+                    if (cameraYaw < 40 && cameraYaw > -40 && textEndOrNot) {
+                        lookAtFrontAgain = true;
                         textEndOrNot = false;
                         const textSequence = [
                             { text: "[Press UP to move a step forward]" },
@@ -289,7 +291,7 @@ function InteractiveControl() {
                         }
                     }
                 }
-            } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot) {
+            } else if (action === "ArrowUp" && currentFrame() >= moveOnGrass2 - 1 && currentFrame() <= moveOnGrass2 + 1 && textEndOrNot && lookAtFrontAgain) {
                 handleAudio(SFX_step3, "play");
                 playForwardToTarget(moveOnGrass2, moveOnGrass2 + stepLength, () => {
                     handleAudio(SFX_step3, "pause");
