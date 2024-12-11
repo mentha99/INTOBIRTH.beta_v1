@@ -91,6 +91,17 @@ canvas {
     text-align: center;
 }
 
+@media all and (min-width: 3000px) {
+    .flex-container {
+        top: 150px;
+    }
+}
+
+@media all and (min-width: 2000px) and (max-width: 3000px) {
+    .flex-container {
+        top: 80px;
+    }
+}
 
 
 
@@ -116,6 +127,17 @@ canvas {
     margin: 0;
     /* Remove margin to prevent spacing issues */
     padding-bottom: 20px;
+}
+@media all and (min-width: 3000px) {
+    .text-container h1 {
+        font-size: 28px;
+    }
+}
+
+@media all and (min-width: 2000px) and (max-width: 3000px) {
+    .text-container h1  {
+        font-size: 22px;
+    }
 }
 
 .nav {
